@@ -4,7 +4,7 @@
 // Requires db/index.js and models/Quote.js to be complete first.
 
 const db = require('./db')
-const Quote = require('./models/Quote')
+const Quote = require('./models/quote')
 
 const quotes = [
   { text: 'The only way to do great work is to love what you do.', author: 'Steve Jobs' },

@@ -8,10 +8,10 @@
 //   4. Complete db/index.js (database connection) first
 //   5. Complete models/Quote.js (Quote model) second
 //   6. Come back here last — this file depends on both
+
 //
 // To start the server: node app.js
 // ============================================================
-
 const express = require('express')
 const morgan = require('morgan')
 const cors = require('cors')
@@ -20,9 +20,10 @@ const cors = require('cors')
 // STEP 1 — Import your database connection and Quote model
 
 
+const dbConnection = require("./db")
+const quote = require("./models/quote")
 
-
-
+dbConnection.authenticate().then(() => console.log("DB connected")).catch(console.error)
 // Importing Quote here registers it with the connection so
 // db.sync() below knows to create the Quotes table.
 
@@ -48,9 +49,12 @@ app.use(cors())          // allows the React frontend to call this server
 //
 // Return every quote from the database as an array.
 // Hint: find the Sequelize method that fetches all rows from a table.
+
 // ------------------------------------------------------------
 app.get('/api/quotes', async (req, res, next) => {
   try {
+    const quotes = await quote.findAll();
+    res.json(quotes);
 
   } catch (error) {
     next(error)
@@ -70,7 +74,9 @@ app.get('/api/quotes', async (req, res, next) => {
 // ------------------------------------------------------------
 app.post('/api/quotes', async (req, res, next) => {
   try {
-
+    const {text, author} = req.body;
+    const newQuote = await quote.create({text,author});
+    res.status(201).json(newQuote);
   } catch (error) {
     next(error)
   }
@@ -91,8 +97,14 @@ app.post('/api/quotes', async (req, res, next) => {
 // ------------------------------------------------------------
 app.delete('/api/quotes/:id', async (req, res, next) => {
   try {
+    const id = Number(req.params.id);
+    const indexToDelete = await quote.destroy({where: {id: id},});
 
-  } catch (error) {
+    if (indexToDelete === -1) {
+      return res.sendStatus(404);
+    }
+    res.sendStatus(204); // 204 No Content — no body on a successful delete
+  }catch (error) {
     next(error)
   }
 })
@@ -128,8 +140,10 @@ app.use((error, req, res, next) => {
 async function startApp() {
   // connect to your db here before the express server listens
 
-
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`))
+  await dbConnection.sync().then (() =>{
+    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  })
+  
 }
 
 startApp()

@@ -3,9 +3,21 @@
 //
 // YOUR TASKS:
 //   1. Import DataTypes from 'sequelize'
+const { DataTypes } = require("sequelize");
 //   2. Import your db connection
+const db = require("../db");
 //   3. Define a Quote model with these fields:
 //
+const Quote = db.define("quote", {
+  text: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  author: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+});
 //      Field    Type      Constraint
 //      -------  --------  --------------------
 //      text     STRING    allowNull: false  (the quote itself)
@@ -16,3 +28,4 @@
 //
 //   4. Export the model
 // ============================================================
+module.exports = Quote;
